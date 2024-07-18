@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { Marker, Popup, useMap } from "react-map-gl";
 import { v4 as uuidv4 } from "uuid";
 import heatMap from "./data/data.json";
 import "./mapbox-gl.css";
@@ -22,10 +22,25 @@ import "./mapbox-gl.css";
 //   }
 // };
 
+export function NavigateButton() {
+  const { current: map } = useMap();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (map) {
+        map.flyTo({ center: [54.3773, 24.4539], zoom: 10 });
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [map]);
+
+  return null;
+}
 export default function Home({ data }) {
   const [viewport, setViewPort] = useState({
-    longitude: 54.3773,
-    latitude: 24.4539,
+    longitude: -122.4,
+    latitude: 37.8,
     zoom: 2,
   });
 
@@ -69,6 +84,7 @@ export default function Home({ data }) {
         }
         projection="globe"
       >
+        <NavigateButton />
         <h1 className="fixed text-4xl text-white text-semibold top-[3vh] left-5">
           World Air Quality Index
         </h1>
@@ -86,7 +102,6 @@ export default function Home({ data }) {
         </h2>
 
         <div className="fixed top-[2vh] right-2">
-          {/* <button onClick={toggleTheme}>Toggle dark mode</button> */}
           <div className="flex flex-col items-center p-4">
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -109,7 +124,6 @@ export default function Home({ data }) {
               </div>
             </label>
           </div>
-          {/* <ThemeToggleButton onClick={toggleTheme} /> */}
         </div>
 
         {heatMap.features?.map((heat) => {
