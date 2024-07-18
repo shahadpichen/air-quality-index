@@ -1,113 +1,150 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import Map, { Marker, Popup } from "react-map-gl";
+import { v4 as uuidv4 } from "uuid";
+import heatMap from "./data/data.json";
+import "./mapbox-gl.css";
+
+//To get the entire data , uncomment the code and map data intead of heatMap
+
+// export const fetchData = async () => {
+//   try {
+//     const response = await fetch(
+//       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/openaq/exports/geojson?lang=en&timezone=Asia%2FKolkata"
+//     );
+//     const result = await response.json();
+//     return {
+//       props: { data: result.features },
+//     };
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
+
+export default function Home({ data }) {
+  const [viewport, setViewPort] = useState({
+    longitude: 54.3773,
+    latitude: 24.4539,
+    zoom: 2,
+  });
+
+  const [selectedLoc, setSelectLoc] = useState(null);
+  const isAirQualitySafe = (parameter, value, unit) => {
+    if (parameter === "CO" && value <= 9000 && unit === "µg/m³") {
+      return true;
+    } else if (parameter === "NO2" && value <= 21 && unit === "µg/m³") {
+      return true;
+    } else if (parameter === "SO2" && value <= 150 && unit === "µg/m³") {
+      return true;
+    } else if (parameter === "O3" && value <= 120 && unit === "µg/m³") {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
+    <div>
+      <Map
+        {...viewport}
+        onMove={(evt) => setViewPort(evt.viewport)}
+        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        style={{ width: "100vw", height: "100vh" }}
+        mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
+        projection="globe"
+      >
+        <h1 className="fixed text-4xl text-semibold top-5 left-5">
+          World Air Quality Index
+        </h1>
+        <h2 className="fixed text-base top-[8vh] left-5">
+          Calculated using various air pollutant concentrations
+        </h2>
+        <h2 className="fixed text-xs bottom-[3vh] right-5">
+          Source:-{" "}
           <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/openaq/exports/geojson?lang=en&timezone=Asia%2FKolkata"
+            className="hover:text-sky-700"
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
+            opendatasoft
           </a>
-        </div>
-      </div>
+        </h2>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        {heatMap.features?.map((heat) => {
+          const [longitude, latitude] = heat.geometry?.coordinates || [];
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          // Ensure latitude and longitude are valid numbers
+          if (typeof latitude === "number" && typeof longitude === "number") {
+            return (
+              <Marker key={uuidv4()} latitude={latitude} longitude={longitude}>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectLoc(heat);
+                  }}
+                >
+                  {isAirQualitySafe(
+                    heat.properties?.measurements_parameter,
+                    heat.properties?.measurements_value,
+                    heat.properties?.measurements_unit
+                  ) ? (
+                    <img src="/icon.svg" width="20px" alt="Marker icon" />
+                  ) : (
+                    <img src="/icon2.svg" width="20px" alt="Marker icon" />
+                  )}
+                </button>
+              </Marker>
+            );
+          }
+        })}
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        {selectedLoc && (
+          <Popup
+            longitude={selectedLoc.geometry?.coordinates[0]}
+            latitude={selectedLoc.geometry?.coordinates[1]}
+            closeButton={true}
+            onClose={() => {
+              setSelectLoc(null);
+            }}
+            closeOnClick={false}
+            offsetTop={-30}
+          >
+            <div className="text-cyan-800 p-2">
+              <h1 className="text-lg font-semibold leading-tight">
+                {selectedLoc.properties?.location}
+              </h1>
+              <p>
+                {new Date(
+                  selectedLoc.properties?.measurements_lastupdated
+                ).toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  second: "numeric",
+                  hour12: true,
+                })}
+              </p>
+              <h2 className="pt-2 text-sm flex gap-1">
+                <img src="/air.svg" className="" width="17px" alt="Air icon" />
+                {selectedLoc.properties?.measurements_parameter} :{" "}
+                {selectedLoc.properties?.measurements_value}{" "}
+                {selectedLoc.properties?.measurements_unit}
+              </h2>
+              {isAirQualitySafe(
+                selectedLoc.properties?.measurements_parameter,
+                selectedLoc.properties?.measurements_value,
+                selectedLoc.properties?.measurements_unit
+              ) ? (
+                <p className="text-green-600">Air quality is safe.</p>
+              ) : (
+                <p className="text-red-600">Air quality is not safe.</p>
+              )}
+            </div>
+          </Popup>
+        )}
+      </Map>
+    </div>
   );
 }

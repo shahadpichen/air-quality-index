@@ -31,3 +31,9 @@ body {
     text-wrap: balance;
   }
 }
+
+.mapboxgl-popup-content button {
+  width: 20px !important;
+  color: #155e75 !important;
+  text-decoration: none !important;
+}

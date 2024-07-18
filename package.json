@@ -9,14 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/mapbox-gl": "^3.1.0",
+    "express": "^4.19.2",
+    "mapbox-gl": "^3.5.1",
+    "next": "^14.2.5",
+    "pako": "^2.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.5"
+    "react-map-gl": "^7.1.7",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.5"
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8",
+    "raw-loader": "^4.0.2",
+    "tailwindcss": "^3.4.1"
   }
 }
