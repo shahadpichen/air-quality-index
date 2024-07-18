@@ -51,16 +51,16 @@ export default function Home({ data }) {
         onMove={(evt) => setViewPort(evt.viewport)}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         style={{ width: "100vw", height: "100vh" }}
-        mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
+        mapStyle="mapbox://styles/mapbox/streets-v12"
         projection="globe"
       >
-        <h1 className="fixed text-4xl text-semibold top-5 left-5">
+        <h1 className="fixed text-4xl text-white text-semibold top-[3vh] left-5">
           World Air Quality Index
         </h1>
-        <h2 className="fixed text-base top-[8vh] left-5">
+        <h2 className="fixed text-base text-white top-[8vh] left-5">
           Calculated using various air pollutant concentrations
         </h2>
-        <h2 className="fixed text-xs bottom-[3vh] right-5">
+        <h2 className="fixed text-xs text-white bottom-[3vh] right-5">
           Source:-{" "}
           <a
             href="https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/openaq/exports/geojson?lang=en&timezone=Asia%2FKolkata"
@@ -88,9 +88,9 @@ export default function Home({ data }) {
                     heat.properties?.measurements_value,
                     heat.properties?.measurements_unit
                   ) ? (
-                    <img src="/icon.svg" width="20px" alt="Marker icon" />
+                    <img src="/icon.svg" width="30px" alt="Marker icon" />
                   ) : (
-                    <img src="/icon2.svg" width="20px" alt="Marker icon" />
+                    <img src="/icon2.svg" width="30px" alt="Marker icon" />
                   )}
                 </button>
               </Marker>

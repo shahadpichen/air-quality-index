@@ -9211,6 +9211,40 @@
     },
     {
       "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [55.309165, 25.258481] },
+      "properties": {
+        "country": "AE",
+        "city": "N/A",
+        "location": "Dubai",
+        "measurements_parameter": "PM2.5",
+        "measurements_sourcename": "StateAir_Dubai",
+        "measurements_unit": "\u00b5g/m\u00b3",
+        "measurements_value": 59.0,
+        "measurements_lastupdated": "2024-07-12T13:30:00+05:30",
+        "country_name_en": "United Arab Emirates"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [55.309165, 25.258481] },
+      "properties": {
+        "country": "AE",
+        "city": "N/A",
+        "location": "Dubai",
+        "measurements_parameter": "O3",
+        "measurements_sourcename": "StateAir_Dubai",
+        "measurements_unit": "ppm",
+        "measurements_value": 0.032,
+        "measurements_lastupdated": "2024-07-12T13:30:00+05:30",
+        "country_name_en": "United Arab Emirates"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [54.5028, 24.34715] }
+    },
+    {
+      "type": "Feature",
       "geometry": { "type": "Point", "coordinates": [54.433874, 24.42431] },
       "properties": {
         "country": "AE",
