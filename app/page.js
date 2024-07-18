@@ -29,6 +29,17 @@ export default function Home({ data }) {
     zoom: 2,
   });
 
+  const [darkMode, setDarkMode] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
+
   const [selectedLoc, setSelectLoc] = useState(null);
   const isAirQualitySafe = (parameter, value, unit) => {
     if (parameter === "CO" && value <= 9000 && unit === "µg/m³") {
@@ -51,7 +62,11 @@ export default function Home({ data }) {
         onMove={(evt) => setViewPort(evt.viewport)}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         style={{ width: "100vw", height: "100vh" }}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
+        mapStyle={
+          darkMode === false
+            ? `mapbox://styles/mapbox/streets-v12`
+            : "mapbox://styles/mapbox/dark-v11"
+        }
         projection="globe"
       >
         <h1 className="fixed text-4xl text-white text-semibold top-[3vh] left-5">
@@ -63,12 +78,39 @@ export default function Home({ data }) {
         <h2 className="fixed text-xs text-white bottom-[3vh] right-5">
           Source:-{" "}
           <a
-            href="https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/openaq/exports/geojson?lang=en&timezone=Asia%2FKolkata"
+            href="https://public.opendatasoft.com/explore/dataset/openaq/information/"
             className="hover:text-sky-700"
           >
             opendatasoft
           </a>
         </h2>
+
+        <div className="fixed top-[2vh] right-2">
+          {/* <button onClick={toggleTheme}>Toggle dark mode</button> */}
+          <div className="flex flex-col items-center p-4">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleChange}
+                onClick={toggleTheme}
+                className="sr-only"
+              />
+              <div
+                className={`w-14 h-8 bg-gray-300 rounded-full flex items-center transition-colors ${
+                  isChecked ? "bg-blue-500" : ""
+                }`}
+              >
+                <div
+                  className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${
+                    isChecked ? "translate-x-8" : ""
+                  }`}
+                ></div>
+              </div>
+            </label>
+          </div>
+          {/* <ThemeToggleButton onClick={toggleTheme} /> */}
+        </div>
 
         {heatMap.features?.map((heat) => {
           const [longitude, latitude] = heat.geometry?.coordinates || [];
