@@ -97,3 +97,12 @@ input:checked + .slider:before {
   color: #155e75 !important;
   text-decoration: none !important;
 }
+.search-bar-container {
+  margin: auto;
+  display: flex;
+  color: black;
+  flex-direction: column;
+  align-items: center;
+  width: 20%;
+  min-width: 200px;
+}

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Map, { Marker, Popup, useMap } from "react-map-gl";
 import { v4 as uuidv4 } from "uuid";
 import heatMap from "./data/worldaqi.json";
+import { SearchBar } from "./components/SearchBar";
+import { SearchResultsList } from "./components/SearchResultsList";
 import "./mapbox-gl.css";
 
 //To get the entire data , uncomment the code and map data intead of heatMap
@@ -24,7 +26,6 @@ import "./mapbox-gl.css";
 
 export function NavigateButton() {
   const { current: map } = useMap();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       if (map) {
@@ -37,12 +38,15 @@ export function NavigateButton() {
 
   return null;
 }
+
 export default function Home({ data }) {
   const [viewport, setViewPort] = useState({
     longitude: -122.4,
     latitude: 37.8,
     zoom: 0,
   });
+  const [results, setResults] = useState([]);
+  const [input, setInput] = useState("");
 
   const [darkMode, setDarkMode] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -90,7 +94,7 @@ export default function Home({ data }) {
     } else if (pm10 >= 505 && pm10 <= 604) {
       aqi = ((500 - 401) / (604 - 505)) * (pm10 - 505) + 401;
     } else {
-      aqi = 500; // Beyond the measurable AQI range, it is considered hazardous.
+      aqi = 500;
     }
 
     return Math.round(aqi);
@@ -111,13 +115,34 @@ export default function Home({ data }) {
         projection="globe"
       >
         <NavigateButton />
-        <h1 className="fixed text-2xl md:text-4xl text-white font-semibold top-[3vh] left-5">
+        <h1
+          className={`fixed text-2xl md:text-4xl ${
+            darkMode === true ? "text-white" : "text-gray-800"
+          }  font-semibold top-[3vh] left-5`}
+        >
           World Air Quality Index
         </h1>
-        <h2 className="fixed text-sm md:text-base text-white top-[8vh] left-5">
+        <h2
+          className={`fixed text-sm md:text-base ${
+            darkMode === true ? "text-white" : "text-gray-800"
+          }  top-[8vh] left-5`}
+        >
           Calculated using PM10 concentration
         </h2>
-        <h2 className="fixed text-xs text-white bottom-[3vh] right-5">
+        <div className="search-bar-container fixed top-[12vh] left-5">
+          <SearchBar setResults={setResults} setInput={setInput} />
+          {input.trim() !== "" && results.length > 0 && (
+            <SearchResultsList
+              results={results.map((data) => data.city)}
+              coordinates={results}
+            />
+          )}
+        </div>
+        <h2
+          className={`fixed text-xs ${
+            darkMode === true ? "text-white" : "text-gray-800"
+          } bottom-[3vh] right-5`}
+        >
           Source:-{" "}
           <a
             href="https://public.opendatasoft.com/explore/dataset/openaq/information/"
@@ -127,8 +152,15 @@ export default function Home({ data }) {
           </a>
         </h2>
 
-        <div className="fixed top-[2vh] right-2">
+        <div className="fixed right-2">
           <div className="flex flex-col items-center p-4">
+            <p
+              className={`text-xs pb-2 font-semibold ${
+                darkMode === true ? "text-white" : "text-gray-800"
+              }`}
+            >
+              {darkMode === true ? "Dark" : "Light"} Mode
+            </p>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
