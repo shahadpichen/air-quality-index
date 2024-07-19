@@ -111,11 +111,11 @@ export default function Home({ data }) {
         projection="globe"
       >
         <NavigateButton />
-        <h1 className="fixed text-4xl text-white text-semibold top-[3vh] left-5">
+        <h1 className="fixed text-2xl md:text-4xl text-white font-semibold top-[3vh] left-5">
           World Air Quality Index
         </h1>
-        <h2 className="fixed text-base text-white top-[8vh] left-5">
-          Calculated using PM10 air pollutant concentrations
+        <h2 className="fixed text-sm md:text-base text-white top-[8vh] left-5">
+          Calculated using PM10 concentration
         </h2>
         <h2 className="fixed text-xs text-white bottom-[3vh] right-5">
           Source:-{" "}
