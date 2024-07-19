@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Map, { Marker, Popup, useMap } from "react-map-gl";
 import { v4 as uuidv4 } from "uuid";
-import heatMap from "./data/data.json";
+import heatMap from "./data/worldaqi.json";
 import "./mapbox-gl.css";
 
 //To get the entire data , uncomment the code and map data intead of heatMap
@@ -28,9 +28,9 @@ export function NavigateButton() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (map) {
-        map.flyTo({ center: [54.3773, 24.4539], zoom: 10 });
+        map.flyTo({ center: [54.3773, 24.4539], zoom: 6, duration: 12000 });
       }
-    }, 5000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [map]);
@@ -41,7 +41,7 @@ export default function Home({ data }) {
   const [viewport, setViewPort] = useState({
     longitude: -122.4,
     latitude: 37.8,
-    zoom: 2,
+    zoom: 0,
   });
 
   const [darkMode, setDarkMode] = useState(false);
@@ -65,9 +65,35 @@ export default function Home({ data }) {
       return true;
     } else if (parameter === "O3" && value <= 120 && unit === "µg/m³") {
       return true;
+    } else if (parameter === "PM10" && value <= 50 && unit === "µg/m³") {
+      return true;
     } else {
       return false;
     }
+  };
+
+  const calculatePM10AQI = (pm10) => {
+    let aqi;
+
+    if (pm10 >= 0 && pm10 <= 54) {
+      aqi = (50 / 54) * pm10;
+    } else if (pm10 >= 55 && pm10 <= 154) {
+      aqi = ((100 - 51) / (154 - 55)) * (pm10 - 55) + 51;
+    } else if (pm10 >= 155 && pm10 <= 254) {
+      aqi = ((150 - 101) / (254 - 155)) * (pm10 - 155) + 101;
+    } else if (pm10 >= 255 && pm10 <= 354) {
+      aqi = ((200 - 151) / (354 - 255)) * (pm10 - 255) + 151;
+    } else if (pm10 >= 355 && pm10 <= 424) {
+      aqi = ((300 - 201) / (424 - 355)) * (pm10 - 355) + 201;
+    } else if (pm10 >= 425 && pm10 <= 504) {
+      aqi = ((400 - 301) / (504 - 425)) * (pm10 - 425) + 301;
+    } else if (pm10 >= 505 && pm10 <= 604) {
+      aqi = ((500 - 401) / (604 - 505)) * (pm10 - 505) + 401;
+    } else {
+      aqi = 500; // Beyond the measurable AQI range, it is considered hazardous.
+    }
+
+    return Math.round(aqi);
   };
 
   return (
@@ -89,7 +115,7 @@ export default function Home({ data }) {
           World Air Quality Index
         </h1>
         <h2 className="fixed text-base text-white top-[8vh] left-5">
-          Calculated using various air pollutant concentrations
+          Calculated using PM10 air pollutant concentrations
         </h2>
         <h2 className="fixed text-xs text-white bottom-[3vh] right-5">
           Source:-{" "}
@@ -129,7 +155,6 @@ export default function Home({ data }) {
         {heatMap.features?.map((heat) => {
           const [longitude, latitude] = heat.geometry?.coordinates || [];
 
-          // Ensure latitude and longitude are valid numbers
           if (typeof latitude === "number" && typeof longitude === "number") {
             return (
               <Marker key={uuidv4()} latitude={latitude} longitude={longitude}>
@@ -182,11 +207,26 @@ export default function Home({ data }) {
                   hour12: true,
                 })}
               </p>
-              <h2 className="pt-2 text-sm flex gap-1">
+              <h2 className="pt-2 text-base flex gap-1">
                 <img src="/air.svg" className="" width="17px" alt="Air icon" />
-                {selectedLoc.properties?.measurements_parameter} :{" "}
-                {selectedLoc.properties?.measurements_value}{" "}
-                {selectedLoc.properties?.measurements_unit}
+                {"AQI:"}{" "}
+                {isAirQualitySafe(
+                  selectedLoc.properties?.measurements_parameter,
+                  selectedLoc.properties?.measurements_value,
+                  selectedLoc.properties?.measurements_unit
+                ) ? (
+                  <p className="font-semibold text-green-600">
+                    {calculatePM10AQI(
+                      selectedLoc.properties?.measurements_value
+                    )}
+                  </p>
+                ) : (
+                  <p className="font-semibold text-red-600">
+                    {calculatePM10AQI(
+                      selectedLoc.properties?.measurements_value
+                    )}
+                  </p>
+                )}
               </h2>
               {isAirQualitySafe(
                 selectedLoc.properties?.measurements_parameter,
