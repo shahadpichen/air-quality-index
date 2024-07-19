@@ -13,7 +13,9 @@ export const SearchResult = ({ result, cityCoordinates }) => {
   return (
     <div
       className="py-2.5 px-5 cursor-pointer hover:bg-gray-200"
-      onClick={() => map.flyTo({ center: [lat, long], zoom: 6 })}
+      onClick={() =>
+        map.flyTo({ center: [lat, long], zoom: 6, duration: 12000 })
+      }
     >
       {result}
     </div>
